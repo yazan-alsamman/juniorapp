@@ -100,10 +100,6 @@ class ApiConstant {
   static const String updateTeamMember = '/team/members/{id}';
   static const String removeTeamMember = '/team/members/{id}';
   static const String teamByProject = '/projects/{projectId}/team';
-  static const String analytics = '/analytics';
-  static const String analyticsDashboard = '/analytics/dashboard';
-  static const String analyticsProjects = '/analytics/projects';
-  static const String analyticsTasks = '/analytics/tasks';
   static const String settings = '/settings';
   static const String updateSettings = '/settings';
   static const String notifications = '/settings/notifications';

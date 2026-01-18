@@ -96,7 +96,7 @@ class ProjectDashboardInformationCard extends StatelessWidget {
                       style: TextStyle(fontSize: 14, color: Color(0xFF666666)),
                     ),
                     Text(
-                      "${project.progressPercentage != null ? project.progressPercentage!.round() : (project.progress > 1.0 ? project.progress.round() : (project.progress * 100).round())}%",
+                      "${project.progressPercentage ?? (project.progress > 1.0 ? project.progress : (project.progress * 100))}%",
                       style: const TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w600,

@@ -69,7 +69,6 @@ class EmployeeScheduleController extends GetxController {
             ? firstDateValue 
             : DateTime.now().add(const Duration(days: 1)));
     
-    // Ensure initialDate is not before firstDate
     final safeInitialDate = initialDateValue.isBefore(firstDateValue)
         ? firstDateValue
         : (initialDateValue.isAfter(lastDateValue) 

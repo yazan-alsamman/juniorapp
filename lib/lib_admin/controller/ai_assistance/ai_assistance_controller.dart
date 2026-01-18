@@ -93,7 +93,6 @@ class AiAssistanceControllerImp extends AiAssistanceController {
       return;
     }
 
-    // Check internet connectivity first
     final hasInternet = await checkInternet();
     if (!hasInternet) {
       Get.snackbar(
@@ -317,13 +316,11 @@ class AiAssistanceControllerImp extends AiAssistanceController {
         errorMessage = 'Request timed out. Please try again.';
       } else if (e.toString().contains('SocketException') ||
           e.toString().contains('Failed host lookup')) {
-        // Re-check connectivity to be more accurate
         final hasInternetNow = await checkInternet();
         if (!hasInternetNow) {
           errorMessage =
               'No internet connection. Please check your network and try again.';
         } else {
-          // Internet is available but connection failed - likely server issue
           errorMessage =
               'Unable to connect to server. Please check your connection or try again later.';
         }
@@ -1010,7 +1007,6 @@ class AiAssistanceControllerImp extends AiAssistanceController {
         throw Exception('No assignments generated');
       }
 
-      // Store the response for approval
       aiAssignmentsResponse = assignResponseData;
 
       final totalTasksSent = tasksCount;
@@ -1331,7 +1327,6 @@ class AiAssistanceControllerImp extends AiAssistanceController {
         throw Exception('No assignments found in response');
       }
 
-      // Convert assignments to the format required by the API
       final List<Map<String, dynamic>> assignmentsToSend = [];
       for (var assignment in assignments) {
         final assignMap = assignment as Map<String, dynamic>;

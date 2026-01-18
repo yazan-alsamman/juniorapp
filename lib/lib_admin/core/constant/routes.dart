@@ -26,7 +26,6 @@ class AppRoute {
   static const String projectComments = "/project-comments";
   static const String addProject = "/add-project";
   static const String editProject = "/edit-project";
-  static const String analytics = "/analytics";
   static const String projectDashboard = "/project-dashboard";
   static const String profile = "/profile";
   static const String assignments = "/assignments";

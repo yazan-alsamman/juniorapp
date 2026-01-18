@@ -43,7 +43,6 @@ class _AddClientScreenState extends State<AddClientScreen>
       setState(() {
         _isPm = isPm;
         _isLoadingRole = false;
-        // Only create TabController if user is not PM (PM users don't need tabs)
         if (!isPm) {
           _tabController = TabController(length: 2, vsync: this);
         }
@@ -84,7 +83,6 @@ class _AddClientScreenState extends State<AddClientScreen>
       body: SafeArea(
         child: Column(
           children: [
-            // Only show TabBar if user is not PM (PM users only see View Clients)
             if (!_isPm && _tabController != null)
               Container(
                 color: AppColor.backgroundColor,

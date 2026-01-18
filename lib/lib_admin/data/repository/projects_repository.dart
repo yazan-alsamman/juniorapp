@@ -27,10 +27,7 @@ class ProjectsRepository {
     required String? companyId,
   }) async {
     try {
-      final queryParams = <String, String>{
-        'page': '1',
-        'limit': '1',
-      };
+      final queryParams = <String, String>{'page': '1', 'limit': '1'};
       if (companyId != null && companyId.isNotEmpty) {
         queryParams['companyId'] = companyId;
       }
@@ -39,45 +36,103 @@ class ProjectsRepository {
         queryParams: queryParams,
         requiresAuth: true,
       );
-      return result.fold(
-        (error) => Left(error),
-        (response) {
-          try {
-            if (response['success'] == false || response['success'] == null) {
-              return const Left(StatusRequest.serverFailure);
-            }
-            if (response['success'] == true && response['data'] != null) {
-              final data = response['data'];
-              Map<String, dynamic>? dataMap;
-              if (data is Map<String, dynamic>) {
-                dataMap = data;
-              } else {
-                return const Left(StatusRequest.serverFailure);
-              }
-              if (dataMap['pagination'] != null) {
-                final pagination = dataMap['pagination'] as Map<String, dynamic>;
-                final total = pagination['total'] as int? ?? 0;
-                return Right(total);
-              }
-              if (dataMap['projects'] is List) {
-                final projectsList = dataMap['projects'] as List;
-                return Right(projectsList.length);
-              }
-              return const Left(StatusRequest.serverFailure);
+      return result.fold((error) => Left(error), (response) {
+        try {
+          if (response['success'] == false || response['success'] == null) {
+            return const Left(StatusRequest.serverFailure);
+          }
+          if (response['success'] == true && response['data'] != null) {
+            final data = response['data'];
+            Map<String, dynamic>? dataMap;
+            if (data is Map<String, dynamic>) {
+              dataMap = data;
             } else {
               return const Left(StatusRequest.serverFailure);
             }
-          } catch (e) {
-            return const Left(StatusRequest.serverException);
+            if (dataMap['pagination'] != null) {
+              final pagination = dataMap['pagination'] as Map<String, dynamic>;
+              final total = pagination['total'] as int? ?? 0;
+              return Right(total);
+            }
+            if (dataMap['projects'] is List) {
+              final projectsList = dataMap['projects'] as List;
+              return Right(projectsList.length);
+            }
+            return const Left(StatusRequest.serverFailure);
+          } else {
+            return const Left(StatusRequest.serverFailure);
           }
-        },
-      );
+        } catch (e) {
+          return const Left(StatusRequest.serverException);
+        }
+      });
     } catch (e) {
       return const Left(StatusRequest.serverException);
     }
   }
 
-  Future<Either<StatusRequest, List<ProjectModel>>> getProjects({
+  Future<Either<StatusRequest, Map<String, dynamic>>> getAllProjectsWithStats({
+    String? companyId,
+  }) async {
+    List<ProjectModel> allProjects = [];
+    Map<String, dynamic>? totalStatistics;
+    int page = 1;
+    int limit = 100; // الحد الأقصى المسموح من API
+    bool hasMore = true;
+    StatusRequest? firstError;
+
+    while (hasMore) {
+      final result = await getProjectsWithStats(
+        companyId: companyId,
+        page: page,
+        limit: limit,
+      );
+
+      result.fold(
+        (error) {
+          hasMore = false;
+          if (page == 1) {
+            firstError = error;
+          }
+        },
+        (data) {
+          final projectsList = data['projects'] as List<ProjectModel>;
+          allProjects.addAll(projectsList);
+
+          if (page == 1 && data['totalStatistics'] != null) {
+            totalStatistics = data['totalStatistics'] as Map<String, dynamic>;
+          }
+
+          if (projectsList.length < limit) {
+            hasMore = false;
+          } else {
+            page++;
+          }
+        },
+      );
+    }
+
+    if (firstError != null && allProjects.isEmpty) {
+      return Left(firstError!);
+    }
+
+    return Right({
+      'projects': allProjects,
+      'totalStatistics': totalStatistics ?? {},
+    });
+  }
+
+  Future<Either<StatusRequest, List<ProjectModel>>> getAllProjects({
+    String? companyId,
+  }) async {
+    final result = await getAllProjectsWithStats(companyId: companyId);
+    return result.fold(
+      (error) => Left(error),
+      (data) => Right(data['projects'] as List<ProjectModel>),
+    );
+  }
+
+  Future<Either<StatusRequest, Map<String, dynamic>>> getProjectsWithStats({
     String? status,
     int page = 1,
     int limit = 10,
@@ -99,44 +154,102 @@ class ProjectsRepository {
         queryParams: queryParams,
         requiresAuth: true,
       );
-      return result.fold(
-        (error) => Left(error),
-        (response) {
-          try {
-            if (response['success'] == false || response['success'] == null) {
-              return const Left(StatusRequest.serverFailure);
-            }
-            if (response['success'] == true && response['data'] != null) {
-              final data = response['data'];
-              List<dynamic> projectsList;
-              if (data is List) {
-                projectsList = data;
-              } else if (data is Map<String, dynamic>) {
-                if (data['projects'] is List) {
-                  projectsList = data['projects'] as List<dynamic>;
-                } else if (data['data'] is List) {
-                  projectsList = data['data'] as List<dynamic>;
-                } else {
-                  return const Left(StatusRequest.serverFailure);
+      return result.fold((error) => Left(error), (response) {
+        try {
+          print('═══════════════════════════════════════════════════════');
+          print('📡 API RESPONSE - Projects with Stats:');
+          print('═══════════════════════════════════════════════════════');
+          print(response);
+          print('═══════════════════════════════════════════════════════');
+
+          if (response['success'] == false || response['success'] == null) {
+            return const Left(StatusRequest.serverFailure);
+          }
+          if (response['success'] == true && response['data'] != null) {
+            final data = response['data'];
+            List<dynamic> projectsList;
+            Map<String, dynamic>? totalStatistics;
+
+            if (data is List) {
+              projectsList = data;
+            } else if (data is Map<String, dynamic>) {
+              if (data['projects'] is List) {
+                projectsList = data['projects'] as List<dynamic>;
+                if (data['totalStatistics'] is Map<String, dynamic>) {
+                  totalStatistics =
+                      data['totalStatistics'] as Map<String, dynamic>;
                 }
+              } else if (data['data'] is List) {
+                projectsList = data['data'] as List<dynamic>;
               } else {
                 return const Left(StatusRequest.serverFailure);
               }
-              final projects = projectsList.map((item) {
-                return ProjectModel.fromJson(item as Map<String, dynamic>);
-              }).toList();
-              return Right(projects);
             } else {
               return const Left(StatusRequest.serverFailure);
             }
-          } catch (e) {
-            return const Left(StatusRequest.serverException);
+
+            print('\n📊 Projects Information:');
+            print('═══════════════════════════════════════════════════════');
+            for (var project in projectsList) {
+              if (project is Map<String, dynamic>) {
+                print('Project: ${project['name'] ?? 'N/A'}');
+                print('  - Total Tasks: ${project['totalTasks'] ?? 0}');
+                print('  - Completed Tasks: ${project['completedTasks'] ?? 0}');
+                print(
+                  '  - Progress Percentage: ${project['progressPercentage'] ?? 0}%',
+                );
+                print('─────────────────────────────────────────────────────');
+              }
+            }
+            if (totalStatistics != null) {
+              print('\n📈 Total Statistics:');
+              print(
+                '  - Active Projects: ${totalStatistics['activeProjects'] ?? 0}',
+              );
+              print('  - Total Tasks: ${totalStatistics['totalTasks'] ?? 0}');
+              print('  - Team Members: ${totalStatistics['teamMembers'] ?? 0}');
+              print(
+                '  - Completion Rate: ${totalStatistics['completionRate'] ?? 0}%',
+              );
+            }
+            print('═══════════════════════════════════════════════════════\n');
+
+            final projects = projectsList.map((item) {
+              return ProjectModel.fromJson(item as Map<String, dynamic>);
+            }).toList();
+
+            return Right({
+              'projects': projects,
+              'totalStatistics': totalStatistics,
+            });
+          } else {
+            return const Left(StatusRequest.serverFailure);
           }
-        },
-      );
+        } catch (e) {
+          return const Left(StatusRequest.serverException);
+        }
+      });
     } catch (e) {
       return const Left(StatusRequest.serverException);
     }
+  }
+
+  Future<Either<StatusRequest, List<ProjectModel>>> getProjects({
+    String? status,
+    int page = 1,
+    int limit = 10,
+    String? companyId,
+  }) async {
+    final result = await getProjectsWithStats(
+      status: status,
+      page: page,
+      limit: limit,
+      companyId: companyId,
+    );
+    return result.fold(
+      (error) => Left(error),
+      (data) => Right(data['projects'] as List<ProjectModel>),
+    );
   }
 
   Future<Either<StatusRequest, ProjectModel>> getProjectById(String id) async {
@@ -187,51 +300,48 @@ class ProjectsRepository {
         queryParams: queryParams,
         requiresAuth: true,
       );
-      return result.fold(
-        (error) => Left(error),
-        (response) {
-          try {
-            final success = response['success'];
-            final data = response['data'];
-            if (success == false || success == null) {
-              return const Left(StatusRequest.serverFailure);
-            }
-            if (success == true && data != null) {
-              List<dynamic> clientsList;
-              if (data is Map<String, dynamic>) {
-                if (data.containsKey('clients')) {
-                  final clientsValue = data['clients'];
-                  if (clientsValue is List) {
-                    clientsList = clientsValue;
-                  } else {
-                    return const Left(StatusRequest.serverFailure);
-                  }
+      return result.fold((error) => Left(error), (response) {
+        try {
+          final success = response['success'];
+          final data = response['data'];
+          if (success == false || success == null) {
+            return const Left(StatusRequest.serverFailure);
+          }
+          if (success == true && data != null) {
+            List<dynamic> clientsList;
+            if (data is Map<String, dynamic>) {
+              if (data.containsKey('clients')) {
+                final clientsValue = data['clients'];
+                if (clientsValue is List) {
+                  clientsList = clientsValue;
                 } else {
                   return const Left(StatusRequest.serverFailure);
                 }
-              } else if (data is List) {
-                clientsList = data;
               } else {
                 return const Left(StatusRequest.serverFailure);
               }
-              if (clientsList.isEmpty) {
-                return Right([]);
-              }
-              final clients = clientsList.map((item) {
-                if (item is! Map<String, dynamic>) {
-                  throw Exception('Client item is not a Map');
-                }
-                return ClientModel.fromJson(item);
-              }).toList();
-              return Right(clients);
+            } else if (data is List) {
+              clientsList = data;
             } else {
               return const Left(StatusRequest.serverFailure);
             }
-          } catch (e) {
-            return const Left(StatusRequest.serverException);
+            if (clientsList.isEmpty) {
+              return Right([]);
+            }
+            final clients = clientsList.map((item) {
+              if (item is! Map<String, dynamic>) {
+                throw Exception('Client item is not a Map');
+              }
+              return ClientModel.fromJson(item);
+            }).toList();
+            return Right(clients);
+          } else {
+            return const Left(StatusRequest.serverFailure);
           }
-        },
-      );
+        } catch (e) {
+          return const Left(StatusRequest.serverException);
+        }
+      });
     } catch (e) {
       return const Left(StatusRequest.serverException);
     }
@@ -271,15 +381,13 @@ class ProjectsRepository {
       );
       return result.fold(
         (error) {
-          return Left({
-            'error': error,
-            'message': _getErrorMessage(error),
-          });
+          return Left({'error': error, 'message': _getErrorMessage(error)});
         },
         (response) {
           try {
             if (response['success'] == false || response['success'] == null) {
-              final errorMessage = response['message']?.toString() ??
+              final errorMessage =
+                  response['message']?.toString() ??
                   response['error']?.toString() ??
                   'Failed to create project';
               return Left({
@@ -292,7 +400,8 @@ class ProjectsRepository {
               final project = ProjectModel.fromJson(projectData);
               return Right(project);
             } else {
-              final errorMessage = response['message']?.toString() ??
+              final errorMessage =
+                  response['message']?.toString() ??
                   response['error']?.toString() ??
                   'Failed to create project';
               return Left({
@@ -340,15 +449,13 @@ class ProjectsRepository {
       );
       return result.fold(
         (error) {
-          return Left({
-            'error': error,
-            'message': _getErrorMessage(error),
-          });
+          return Left({'error': error, 'message': _getErrorMessage(error)});
         },
         (response) {
           try {
             if (response['success'] == false || response['success'] == null) {
-              final errorMessage = response['message']?.toString() ??
+              final errorMessage =
+                  response['message']?.toString() ??
                   response['error']?.toString() ??
                   'Failed to update project';
               return Left({
@@ -361,7 +468,8 @@ class ProjectsRepository {
               final project = ProjectModel.fromJson(projectData);
               return Right(project);
             } else {
-              final errorMessage = response['message']?.toString() ??
+              final errorMessage =
+                  response['message']?.toString() ??
                   response['error']?.toString() ??
                   'Failed to update project';
               return Left({
@@ -391,15 +499,13 @@ class ProjectsRepository {
       );
       return result.fold(
         (error) {
-          return Left({
-            'error': error,
-            'message': _getErrorMessage(error),
-          });
+          return Left({'error': error, 'message': _getErrorMessage(error)});
         },
         (response) {
           try {
             if (response['success'] == false || response['success'] == null) {
-              final errorMessage = response['message']?.toString() ??
+              final errorMessage =
+                  response['message']?.toString() ??
                   response['error']?.toString() ??
                   'Failed to delete project';
               return Left({
@@ -410,7 +516,8 @@ class ProjectsRepository {
             if (response['success'] == true) {
               return const Right(true);
             } else {
-              final errorMessage = response['message']?.toString() ??
+              final errorMessage =
+                  response['message']?.toString() ??
                   response['error']?.toString() ??
                   'Failed to delete project';
               return Left({
@@ -447,28 +554,25 @@ class ProjectsRepository {
         queryParams: queryParams,
         requiresAuth: true,
       );
-      return result.fold(
-        (error) => Left(error),
-        (response) {
-          try {
-            if (response['success'] == false || response['success'] == null) {
-              return const Left(StatusRequest.serverFailure);
-            }
-            if (response['success'] == true && response['data'] != null) {
-              final data = response['data'];
-              if (data is Map<String, dynamic>) {
-                return Right(data);
-              } else {
-                return const Left(StatusRequest.serverFailure);
-              }
+      return result.fold((error) => Left(error), (response) {
+        try {
+          if (response['success'] == false || response['success'] == null) {
+            return const Left(StatusRequest.serverFailure);
+          }
+          if (response['success'] == true && response['data'] != null) {
+            final data = response['data'];
+            if (data is Map<String, dynamic>) {
+              return Right(data);
             } else {
               return const Left(StatusRequest.serverFailure);
             }
-          } catch (e) {
-            return const Left(StatusRequest.serverException);
+          } else {
+            return const Left(StatusRequest.serverFailure);
           }
-        },
-      );
+        } catch (e) {
+          return const Left(StatusRequest.serverException);
+        }
+      });
     } catch (e) {
       return const Left(StatusRequest.serverException);
     }

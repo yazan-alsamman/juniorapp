@@ -116,12 +116,10 @@ class RequestDelayController extends GetxController {
         (error) {
           _isLoading = false;
           
-          // Extract error message from the error object
           String errorMsg = 'Failed to request task delay';
           StatusRequest errorStatus = StatusRequest.serverFailure;
           
           if (error is Map<String, dynamic>) {
-            // If error is a Map, extract the message and status
             errorMsg = error['message']?.toString() ?? 
                       error['error']?.toString() ?? 
                       'Failed to request task delay';
@@ -129,7 +127,6 @@ class RequestDelayController extends GetxController {
                 ? error['error'] as StatusRequest 
                 : StatusRequest.serverFailure;
           } else if (error is StatusRequest) {
-            // If error is directly a StatusRequest, use default messages
             errorStatus = error;
             if (error == StatusRequest.serverFailure) {
               errorMsg = 'Server error. Please try again.';
@@ -141,7 +138,6 @@ class RequestDelayController extends GetxController {
               errorMsg = 'An unexpected server error occurred.';
             }
           } else {
-            // Fallback for other error types
             errorMsg = error.toString();
           }
           

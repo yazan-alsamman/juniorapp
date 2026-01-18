@@ -370,7 +370,7 @@ Project Details Report
 Project Name: ${widget.project.title}
 Company: ${widget.project.company}
 Status: ${widget.project.status}
-Progress: ${widget.project.progress > 1.0 ? widget.project.progress.round() : (widget.project.progress * 100).round()}%
+Progress: ${widget.project.progressPercentage ?? (widget.project.progress > 1.0 ? widget.project.progress : (widget.project.progress * 100))}%
 Description:
 ${widget.project.description}
 Timeline:

@@ -4,7 +4,6 @@ import '../../controller/assignment/add_assignment_controller.dart';
 import '../../controller/assignment/assignments_controller.dart';
 import '../../controller/assignment/assignments_tabs_controller.dart';
 import '../../controller/auth/add_client_controller.dart';
-import '../../controller/common/analytics_controller.dart';
 import '../../controller/common/customAppBar_controller.dart';
 import '../../controller/common/customDrawer_controller.dart';
 import '../../controller/common/filter_button_controller.dart';
@@ -18,7 +17,6 @@ import '../../controller/project/projects_controller.dart';
 import '../../controller/task/add_task_controller.dart';
 import '../../controller/task/tasks_controller.dart';
 
-/// Bindings for Team Screen
 class TeamScreenBinding extends Bindings {
   @override
   void dependencies() {
@@ -34,7 +32,6 @@ class TeamScreenBinding extends Bindings {
   }
 }
 
-/// Bindings for Tasks Screen
 class TasksScreenBinding extends Bindings {
   @override
   void dependencies() {
@@ -53,7 +50,6 @@ class TasksScreenBinding extends Bindings {
   }
 }
 
-/// Bindings for Projects Screen
 class ProjectsScreenBinding extends Bindings {
   @override
   void dependencies() {
@@ -72,23 +68,7 @@ class ProjectsScreenBinding extends Bindings {
   }
 }
 
-/// Bindings for Analytics Screen
-class AnalyticsScreenBinding extends Bindings {
-  @override
-  void dependencies() {
-    if (!Get.isRegistered<CustomDrawerControllerImp>()) {
-      Get.put(CustomDrawerControllerImp());
-    }
-    if (!Get.isRegistered<CustomappbarControllerImp>()) {
-      Get.put(CustomappbarControllerImp());
-    }
-    if (!Get.isRegistered<AnalyticsControllerImp>()) {
-      Get.put(AnalyticsControllerImp());
-    }
-  }
-}
 
-/// Bindings for Project Dashboard Screen
 class ProjectDashboardScreenBinding extends Bindings {
   @override
   void dependencies() {
@@ -104,7 +84,6 @@ class ProjectDashboardScreenBinding extends Bindings {
   }
 }
 
-/// Bindings for Add Employee Screen
 class AddEmployeeScreenBinding extends Bindings {
   @override
   void dependencies() {
@@ -114,16 +93,12 @@ class AddEmployeeScreenBinding extends Bindings {
   }
 }
 
-/// Bindings for Edit Employee Screen
-/// Note: EditEmployeeControllerImp requires employeeId, so it's initialized in the screen's initState
 class EditEmployeeScreenBinding extends Bindings {
   @override
   void dependencies() {
-    // Controller is initialized in EditEmployeeScreen with employeeId from route arguments
   }
 }
 
-/// Bindings for Add Task Screen
 class AddTaskScreenBinding extends Bindings {
   @override
   void dependencies() {
@@ -133,17 +108,12 @@ class AddTaskScreenBinding extends Bindings {
   }
 }
 
-/// Bindings for Edit Task Screen
-/// Note: EditTaskControllerImp requires taskId, so it's initialized in the screen's initState
 class EditTaskScreenBinding extends Bindings {
   @override
   void dependencies() {
-    // Controller is initialized in EditTaskScreen with taskId from route arguments
   }
 }
 
-/// Bindings for Task Detail Screen
-/// Note: TaskDetailController requires taskId and task, so it's initialized in the screen's build method
 class TaskDetailScreenBinding extends Bindings {
   @override
   void dependencies() {
@@ -153,12 +123,9 @@ class TaskDetailScreenBinding extends Bindings {
     if (!Get.isRegistered<CustomappbarControllerImp>()) {
       Get.put(CustomappbarControllerImp());
     }
-    // TaskDetailController is initialized in TaskDetailScreen with task from Get.arguments
   }
 }
 
-/// Bindings for Task Comments Screen
-/// Note: TaskDetailController requires taskId and task, so it's initialized in the screen
 class TaskCommentsScreenBinding extends Bindings {
   @override
   void dependencies() {
@@ -168,20 +135,15 @@ class TaskCommentsScreenBinding extends Bindings {
     if (!Get.isRegistered<CustomappbarControllerImp>()) {
       Get.put(CustomappbarControllerImp());
     }
-    // TaskDetailController is initialized in TaskCommentsScreen with task from Get.arguments
   }
 }
 
-/// Bindings for Request Delay Screen
-/// Note: RequestDelayController requires taskId and task, so it's initialized in the screen
 class RequestDelayScreenBinding extends Bindings {
   @override
   void dependencies() {
-    // RequestDelayController is initialized in RequestDelayScreen with task from Get.arguments
   }
 }
 
-/// Bindings for Add Project Screen
 class AddProjectScreenBinding extends Bindings {
   @override
   void dependencies() {
@@ -191,16 +153,12 @@ class AddProjectScreenBinding extends Bindings {
   }
 }
 
-/// Bindings for Edit Project Screen
-/// Note: EditProjectControllerImp requires projectId, so it's initialized in the screen's initState
 class EditProjectScreenBinding extends Bindings {
   @override
   void dependencies() {
-    // Controller is initialized in EditProjectScreen with projectId from route arguments
   }
 }
 
-/// Bindings for Project Details Screen
 class ProjectDetailsScreenBinding extends Bindings {
   @override
   void dependencies() {
@@ -213,8 +171,6 @@ class ProjectDetailsScreenBinding extends Bindings {
   }
 }
 
-/// Bindings for Project Comments Screen
-/// Note: ProjectCommentsController requires projectId and project, so it's initialized in the screen
 class ProjectCommentsScreenBinding extends Bindings {
   @override
   void dependencies() {
@@ -224,11 +180,9 @@ class ProjectCommentsScreenBinding extends Bindings {
     if (!Get.isRegistered<CustomappbarControllerImp>()) {
       Get.put(CustomappbarControllerImp());
     }
-    // ProjectCommentsController is initialized in ProjectCommentsScreen with project from Get.arguments
   }
 }
 
-/// Bindings for Profile Screen
 class ProfileScreenBinding extends Bindings {
   @override
   void dependencies() {
@@ -244,7 +198,6 @@ class ProfileScreenBinding extends Bindings {
   }
 }
 
-/// Bindings for Assignments Screen
 class AssignmentsScreenBinding extends Bindings {
   @override
   void dependencies() {
@@ -266,7 +219,6 @@ class AssignmentsScreenBinding extends Bindings {
   }
 }
 
-/// Bindings for Add Assignment Screen
 class AddAssignmentScreenBinding extends Bindings {
   @override
   void dependencies() {
@@ -276,16 +228,12 @@ class AddAssignmentScreenBinding extends Bindings {
   }
 }
 
-/// Bindings for Reassign Assignment Screen
-/// Note: ReassignAssignmentController requires AssignmentModel, so it's initialized in the screen's build method
 class ReassignAssignmentScreenBinding extends Bindings {
   @override
-  void dependencies() {
-    // ReassignAssignmentController is initialized in ReassignAssignmentScreen with assignment from Get.arguments
+   void dependencies() {
   }
 }
 
-/// Bindings for Add Client Screen
 class AddClientScreenBinding extends Bindings {
   @override
   void dependencies() {
@@ -295,7 +243,6 @@ class AddClientScreenBinding extends Bindings {
   }
 }
 
-/// Bindings for AI Assistance Screen
 class AiAssistanceScreenBinding extends Bindings {
   @override
   void dependencies() {
@@ -308,7 +255,6 @@ class AiAssistanceScreenBinding extends Bindings {
   }
 }
 
-/// Bindings for Delays Screen
 class DelaysScreenBinding extends Bindings {
   @override
   void dependencies() {

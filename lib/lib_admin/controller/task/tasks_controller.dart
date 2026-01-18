@@ -249,7 +249,6 @@ class TasksControllerImp extends TasksController {
           borderRadius: 12,
           margin: const EdgeInsets.all(16),
         );
-        // Refresh tasks after marking as completed
         refreshTasks();
         return true;
       },

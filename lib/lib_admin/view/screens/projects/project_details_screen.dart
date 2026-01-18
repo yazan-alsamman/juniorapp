@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:project_hub/lib_admin/core/constant/routes.dart';
 import '../../../controller/common/customDrawer_controller.dart';
 import '../../../core/constant/color.dart';
-import '../../../core/services/auth_service.dart';
 import '../../../data/Models/project_model.dart';
 import '../../widgets/common/custom_app_bar.dart';
 import '../../widgets/common/custom_drawer.dart';
@@ -198,7 +196,7 @@ class ProjectDetailsScreen extends StatelessWidget {
                                           ),
                                         ),
                                         Text(
-                                          '${project.progressPercentage != null ? project.progressPercentage!.round() : (project.progress > 1.0 ? project.progress.round() : (project.progress * 100).round())}%',
+                                          '${project.progressPercentage ?? (project.progress > 1.0 ? project.progress : (project.progress * 100))}%',
                                           style: const TextStyle(
                                             fontSize: 16,
                                             color: Color(0xFF333333),
@@ -309,207 +307,61 @@ class ProjectDetailsScreen extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 24),
-                    FutureBuilder<String?>(
-                      future: AuthService().getUserRole(),
-                      builder: (context, snapshot) {
-                        final role = snapshot.data?.toLowerCase() ?? '';
-                        final isDeveloper = role == 'developer';
-                        final isPM = role == 'pm' || role == 'project manager';
-                        final isAdmin = role == 'admin';
-
-                        return LayoutBuilder(
-                          builder: (context, constraints) {
-                            final isNarrow = constraints.maxWidth < 400;
-                            if (isNarrow) {
-                              return Column(
-                                children: [
-                                  if (!isDeveloper)
-                                    SizedBox(
-                                      width: double.infinity,
-                                      child: ElevatedButton.icon(
-                                        onPressed: () {
-                                          Get.toNamed(
-                                            AppRoute.editProject,
-                                            arguments: project.id,
-                                          );
-                                        },
-                                        icon: const Icon(Icons.edit_outlined),
-                                        label: const Text('Edit Project'),
-                                        style: ElevatedButton.styleFrom(
-                                          backgroundColor: const Color(
-                                            0xFF4285F4,
-                                          ),
-                                          foregroundColor: Colors.white,
-                                          padding: const EdgeInsets.symmetric(
-                                            vertical: 16,
-                                          ),
-                                          shape: RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.circular(
-                                              12,
-                                            ),
-                                          ),
-                                        ),
-                                      ),
+                    LayoutBuilder(
+                      builder: (context, constraints) {
+                        final isNarrow = constraints.maxWidth < 400;
+                        if (isNarrow) {
+                          return Column(
+                            children: [
+                              SizedBox(
+                                width: double.infinity,
+                                child: OutlinedButton.icon(
+                                  onPressed: () {
+                                    _showShareDialog(context);
+                                  },
+                                  icon: const Icon(Icons.share_outlined),
+                                  label: const Text('Share'),
+                                  style: OutlinedButton.styleFrom(
+                                    foregroundColor: const Color(0xFF4285F4),
+                                    side: const BorderSide(
+                                      color: Color(0xFF4285F4),
                                     ),
-                                  if (!isDeveloper && (isPM || isAdmin))
-                                    const SizedBox(height: 12),
-                                  if ((isPM || isAdmin))
-                                    SizedBox(
-                                      width: double.infinity,
-                                      child: ElevatedButton.icon(
-                                        onPressed: () {
-                                          // Note: This requires an AssignmentModel.
-                                          // You need to pass the assignment ID or model as argument.
-                                          // For now, showing a message that assignment is needed.
-                                          Get.snackbar(
-                                            'Info',
-                                            'Please select a task assignment first to edit assign.',
-                                            snackPosition: SnackPosition.BOTTOM,
-                                            duration: const Duration(
-                                              seconds: 3,
-                                            ),
-                                          );
-                                        },
-                                        icon: const Icon(
-                                          Icons.person_add_alt_1_outlined,
-                                        ),
-                                        label: const Text('Edit Assign'),
-                                        style: ElevatedButton.styleFrom(
-                                          backgroundColor: const Color(
-                                            0xFF34A853,
-                                          ),
-                                          foregroundColor: Colors.white,
-                                          padding: const EdgeInsets.symmetric(
-                                            vertical: 16,
-                                          ),
-                                          shape: RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.circular(
-                                              12,
-                                            ),
-                                          ),
-                                        ),
-                                      ),
+                                    padding: const EdgeInsets.symmetric(
+                                      vertical: 16,
                                     ),
-                                  const SizedBox(height: 12),
-                                  SizedBox(
-                                    width: double.infinity,
-                                    child: OutlinedButton.icon(
-                                      onPressed: () {
-                                        _showShareDialog(context);
-                                      },
-                                      icon: const Icon(Icons.share_outlined),
-                                      label: const Text('Share'),
-                                      style: OutlinedButton.styleFrom(
-                                        foregroundColor: const Color(
-                                          0xFF4285F4,
-                                        ),
-                                        side: const BorderSide(
-                                          color: Color(0xFF4285F4),
-                                        ),
-                                        padding: const EdgeInsets.symmetric(
-                                          vertical: 16,
-                                        ),
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(
-                                            12,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              );
-                            }
-                            return Row(
-                              children: [
-                                if (!isDeveloper)
-                                  Expanded(
-                                    child: ElevatedButton.icon(
-                                      onPressed: () {
-                                        Get.toNamed(
-                                          AppRoute.editProject,
-                                          arguments: project.id,
-                                        );
-                                      },
-                                      icon: const Icon(Icons.edit_outlined),
-                                      label: const Text('Edit Project'),
-                                      style: ElevatedButton.styleFrom(
-                                        backgroundColor: const Color(
-                                          0xFF4285F4,
-                                        ),
-                                        foregroundColor: Colors.white,
-                                        padding: const EdgeInsets.symmetric(
-                                          vertical: 16,
-                                        ),
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(
-                                            12,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                if (!isDeveloper) const SizedBox(width: 12),
-                                if ((isPM || isAdmin))
-                                  Expanded(
-                                    child: ElevatedButton.icon(
-                                      onPressed: () {
-                                        // Note: This requires an AssignmentModel.
-                                        // You need to pass the assignment ID or model as argument.
-                                        // For now, showing a message that assignment is needed.
-                                        Get.snackbar(
-                                          'Info',
-                                          'Please select a task assignment first to edit assign.',
-                                          snackPosition: SnackPosition.BOTTOM,
-                                          duration: const Duration(seconds: 3),
-                                        );
-                                      },
-                                      icon: const Icon(
-                                        Icons.person_add_alt_1_outlined,
-                                      ),
-                                      label: const Text('Edit Assign'),
-                                      style: ElevatedButton.styleFrom(
-                                        backgroundColor: const Color(
-                                          0xFF34A853,
-                                        ),
-                                        foregroundColor: Colors.white,
-                                        padding: const EdgeInsets.symmetric(
-                                          vertical: 16,
-                                        ),
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(
-                                            12,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                if ((isPM || isAdmin))
-                                  const SizedBox(width: 12),
-                                Expanded(
-                                  child: OutlinedButton.icon(
-                                    onPressed: () {
-                                      _showShareDialog(context);
-                                    },
-                                    icon: const Icon(Icons.share_outlined),
-                                    label: const Text('Share'),
-                                    style: OutlinedButton.styleFrom(
-                                      foregroundColor: const Color(0xFF4285F4),
-                                      side: const BorderSide(
-                                        color: Color(0xFF4285F4),
-                                      ),
-                                      padding: const EdgeInsets.symmetric(
-                                        vertical: 16,
-                                      ),
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(12),
-                                      ),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(12),
                                     ),
                                   ),
                                 ),
-                              ],
-                            );
-                          },
+                              ),
+                            ],
+                          );
+                        }
+                        return Row(
+                          children: [
+                            Expanded(
+                              child: OutlinedButton.icon(
+                                onPressed: () {
+                                  _showShareDialog(context);
+                                },
+                                icon: const Icon(Icons.share_outlined),
+                                label: const Text('Share'),
+                                style: OutlinedButton.styleFrom(
+                                  foregroundColor: const Color(0xFF4285F4),
+                                  side: const BorderSide(
+                                    color: Color(0xFF4285F4),
+                                  ),
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 16,
+                                  ),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
                         );
                       },
                     ),

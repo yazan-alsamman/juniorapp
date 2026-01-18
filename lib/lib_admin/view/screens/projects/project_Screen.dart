@@ -86,7 +86,6 @@ class ProjectScreen extends StatelessWidget {
   const ProjectScreen({super.key});
   @override
   Widget build(BuildContext context) {
-    // Ensure controllers are registered before use
     if (!Get.isRegistered<CustomDrawerControllerImp>()) {
       Get.put(CustomDrawerControllerImp());
     }

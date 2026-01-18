@@ -152,7 +152,7 @@ class ProjectCard extends StatelessWidget {
                     ),
                     const Spacer(),
                     Text(
-                      '${progress > 1.0 ? progress.round() : (progress * 100).round()}%',
+                      '${progress > 1.0 ? progress : (progress * 100)}%',
                       style: TextStyle(
                         fontSize: Responsive.fontSize(context, mobile: 14),
                         color: const Color(0xFF333333),

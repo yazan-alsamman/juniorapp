@@ -70,13 +70,11 @@ class ReassignAssignmentScreen extends StatelessWidget {
   String _getCurrentEmployeeName(ReassignAssignmentControllerImp controller) {
     final assignment = controller.assignment;
     
-    // If employeeName is not 'Unknown', return it
     if (assignment.employeeName.isNotEmpty && 
         assignment.employeeName.toLowerCase() != 'unknown') {
       return assignment.employeeName;
     }
     
-    // Otherwise, try to find the employee in the loaded employees list
     if (controller.employees.isNotEmpty && assignment.employeeId.isNotEmpty) {
       try {
         final employee = controller.employees.firstWhere(
@@ -84,11 +82,9 @@ class ReassignAssignmentScreen extends StatelessWidget {
         );
         return employee.username;
       } catch (e) {
-        // Employee not found in the list, fallback to employeeId or Unknown
       }
     }
     
-    // Final fallback
     return assignment.employeeId.isNotEmpty 
         ? assignment.employeeId 
         : 'Unknown';

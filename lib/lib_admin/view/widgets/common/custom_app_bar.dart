@@ -8,14 +8,12 @@ import '../../../controller/common/customAppBar_controller.dart';
 import '../../../data/repository/auth_repository.dart';
 class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String? title;
-  final bool showSearch;
   final bool showUserProfile;
   final bool showHamburgerMenu;
   final bool showBackButton;
   const CustomAppBar({
     super.key,
     this.title,
-    this.showSearch = true,
     this.showUserProfile = true,
     this.showHamburgerMenu = true,
     this.showBackButton = false,
@@ -63,15 +61,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                 _buildHamburgerMenu(context),
                 SizedBox(width: Responsive.spacing(context, mobile: 12)),
                 _buildAppLogo(context),
-                SizedBox(width: Responsive.spacing(context, mobile: 12)),
-              ],
-              if (showSearch) ...[
-                Expanded(child: _buildSearchBar(context, controller)),
-                SizedBox(width: Responsive.spacing(context, mobile: 12)),
-              ],
-              if (showSearch && !Responsive.isMobile(context)) ...[
-                _buildSearchIcon(context),
-                SizedBox(width: Responsive.spacing(context, mobile: 16)),
+                const Spacer(),
               ],
               if (showUserProfile) ...[_buildUserProfile(context, controller)],
             ],
@@ -110,56 +100,6 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
           size: Responsive.iconSize(context, mobile: 24),
         );
       },
-    );
-  }
-  Widget _buildSearchBar(
-    BuildContext context,
-    CustomappbarControllerImp controller,
-  ) {
-    return Container(
-      height: Responsive.size(context, mobile: 40),
-      decoration: BoxDecoration(
-        color: AppColor.backgroundColor,
-        borderRadius: BorderRadius.circular(
-          Responsive.borderRadius(context, mobile: 20),
-        ),
-        border: Border.all(color: AppColor.borderColor, width: 1),
-      ),
-      child: TextField(
-        onChanged: (query) {
-          controller.updateSearchQuery(query);
-        },
-        decoration: InputDecoration(
-          hintText: 'Search projects, tasks...',
-          hintStyle: TextStyle(
-            color: AppColor.textSecondaryColor,
-            fontSize: Responsive.fontSize(context, mobile: 14),
-          ),
-          border: InputBorder.none,
-          contentPadding: EdgeInsets.symmetric(
-            horizontal: Responsive.spacing(context, mobile: 16),
-            vertical: Responsive.spacing(context, mobile: 12),
-          ),
-        ),
-        style: TextStyle(
-          color: AppColor.textColor,
-          fontSize: Responsive.fontSize(context, mobile: 14),
-        ),
-      ),
-    );
-  }
-  Widget _buildSearchIcon(BuildContext context) {
-    return GestureDetector(
-      onTap: () {
-      },
-      child: Container(
-        padding: EdgeInsets.all(Responsive.spacing(context, mobile: 8)),
-        child: Icon(
-          Icons.search,
-          color: AppColor.textSecondaryColor,
-          size: Responsive.iconSize(context, mobile: 24),
-        ),
-      ),
     );
   }
   Widget _buildUserProfile(

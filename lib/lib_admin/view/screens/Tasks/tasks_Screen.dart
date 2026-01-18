@@ -18,7 +18,6 @@ class TasksScreen extends StatelessWidget {
   const TasksScreen({super.key});
   @override
   Widget build(BuildContext context) {
-    // Ensure controllers are registered before use
     if (!Get.isRegistered<CustomDrawerControllerImp>()) {
       Get.put(CustomDrawerControllerImp());
     }

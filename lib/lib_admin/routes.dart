@@ -21,7 +21,6 @@ import 'view/screens/Tasks/task_comments_screen.dart';
 import 'view/screens/Tasks/request_delay_screen.dart';
 import 'view/screens/projects/add_project_screen.dart';
 import 'view/screens/projects/edit_project_screen.dart';
-import 'view/screens/analytics/analytics_Screen.dart';
 import 'view/screens/project dashboard/project_dashboard_screen.dart';
 import 'view/screens/profile/profile_screen.dart';
 import 'view/screens/assignments/assignments_screen.dart';
@@ -54,11 +53,6 @@ List<GetPage<dynamic>>? routes = [
     name: AppRoute.projects,
     page: () => const ProjectScreen(),
     binding: ProjectsScreenBinding(),
-  ),
-  GetPage(
-    name: AppRoute.analytics,
-    page: () => const AnalyticsScreen(),
-    binding: AnalyticsScreenBinding(),
   ),
   GetPage(
     name: AppRoute.projectDashboard,

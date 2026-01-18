@@ -12,7 +12,6 @@ class MyMiddleWare extends GetMiddleware {
       return null;
     }
     if (route == AppRoute.projectDashboard ||
-        route == AppRoute.analytics ||
         route == AppRoute.projects ||
         route == AppRoute.team ||
         route == AppRoute.tasks ||

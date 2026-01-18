@@ -3,46 +3,56 @@ import '../../core/class/statusrequest.dart';
 import '../../core/services/auth_service.dart';
 import '../../data/Models/project_model.dart';
 import '../../data/repository/projects_repository.dart';
-import '../../view/widgets/common/sort_dropdown.dart';
+
 abstract class ProjectDashboardController extends GetxController {
-  List<ProjectModel> get projects;
-  SortOption get selectedSortOption;
+  List<ProjectModel> get allProjects;
+  ProjectModel? get selectedProject;
   StatusRequest get statusRequest;
   bool get isLoading;
   Map<String, dynamic> get stats;
   bool get isLoadingStats;
-  void changeSortOption(SortOption option);
-  Future<void> loadProjects({bool refresh = false});
+  void changeSelectedProject(ProjectModel? project);
+  Future<void> loadAllProjects({bool refresh = false});
   Future<void> loadStats();
 }
+
 class ProjectDashboardControllerImp extends ProjectDashboardController {
   final ProjectsRepository _repository = ProjectsRepository();
   final AuthService _authService = AuthService();
-  List<ProjectModel> _projects = [];
-  SortOption _selectedSortOption = SortOption.deadline;
+  List<ProjectModel> _allProjects = [];
+  ProjectModel? _selectedProject;
   StatusRequest _statusRequest = StatusRequest.none;
   bool _isLoading = false;
   Map<String, dynamic> _stats = {};
   bool _isLoadingStats = false;
+
   @override
-  List<ProjectModel> get projects => _projects;
+  List<ProjectModel> get allProjects => _allProjects;
+
   @override
-  SortOption get selectedSortOption => _selectedSortOption;
+  ProjectModel? get selectedProject => _selectedProject;
+
   @override
   StatusRequest get statusRequest => _statusRequest;
+
   @override
   bool get isLoading => _isLoading;
+
   @override
   Map<String, dynamic> get stats => _stats;
+
   @override
   bool get isLoadingStats => _isLoadingStats;
+
   @override
   void onInit() {
     super.onInit();
-    loadProjects();
+    loadAllProjects();
+    loadStats();
   }
+
   @override
-  Future<void> loadProjects({bool refresh = false}) async {
+  Future<void> loadAllProjects({bool refresh = false}) async {
     if (_isLoading && !refresh) return;
     _isLoading = true;
     _statusRequest = StatusRequest.loading;
@@ -55,21 +65,24 @@ class ProjectDashboardControllerImp extends ProjectDashboardController {
         update();
         return;
       }
-      final result = await _repository.getProjects(
-        page: 1,
-        limit: 10,
+      final result = await _repository.getAllProjectsWithStats(
         companyId: companyId,
       );
       _isLoading = false;
       result.fold(
         (error) {
           _statusRequest = error;
-          _projects = [];
+          _allProjects = [];
+          _stats = {};
         },
-        (projectsList) {
-          _projects = projectsList;
+        (data) {
+          _allProjects = data['projects'] as List<ProjectModel>;
           _statusRequest = StatusRequest.success;
-          _sortProjects();
+
+          if (_selectedProject == null && _allProjects.isNotEmpty) {
+            _selectedProject = _allProjects.first;
+          }
+
           _calculateStatsFromProjects();
           _isLoadingStats = false;
         },
@@ -77,10 +90,11 @@ class ProjectDashboardControllerImp extends ProjectDashboardController {
     } catch (e) {
       _isLoading = false;
       _statusRequest = StatusRequest.serverException;
-      _projects = [];
+      _allProjects = [];
     }
     update();
   }
+
   @override
   Future<void> loadStats() async {
     _isLoadingStats = true;
@@ -95,71 +109,73 @@ class ProjectDashboardControllerImp extends ProjectDashboardController {
   }
 
   void _calculateStatsFromProjects() {
-    final activeProjects = _projects.where((p) =>
-      p.status.toLowerCase() == 'active' ||
-      p.status.toLowerCase() == 'in_progress'
-    ).length;
-
-    final totalTasks = _projects.fold<int>(
-      0,
-      (sum, project) => sum + (project.totalTasks ?? 0)
-    );
-
-    double totalProgress = 0.0;
-    int projectsWithProgress = 0;
-    for (var project in _projects) {
-      if (project.progressPercentage != null) {
-        totalProgress += project.progressPercentage!;
-        projectsWithProgress++;
-      }
+    if (_selectedProject == null) {
+      _stats = {
+        'activeProjects': 0,
+        'totalTasks': 0,
+        'teamMembers': 0,
+        'completionRate': 0.0,
+      };
+      return;
     }
-    final avgCompletionRate = projectsWithProgress > 0
-        ? (totalProgress / projectsWithProgress)
-        : 0.0;
+
+    final project = _selectedProject!;
+
+    final isActive =
+        project.status.toLowerCase() == 'active' ||
+        project.status.toLowerCase() == 'in_progress';
+
+    final teamMembers = project.teamMembers;
 
     _stats = {
-      'activeProjects': activeProjects,
-      'totalTasks': totalTasks,
-      'teamMembers': _projects.fold<int>(0, (sum, p) => sum + (p.teamMembers)),
-      'completionRate': avgCompletionRate,
+      'activeProjects': isActive ? 1 : 0,
+      'totalTasks': project.totalTasks ?? 0,
+      'teamMembers': teamMembers,
+      'completionRate': project.progressPercentage ?? 0.0,
     };
   }
+
   @override
-  void changeSortOption(SortOption option) {
-    _selectedSortOption = option;
-    _sortProjects();
-    update();
-  }
-  void _sortProjects() {
-    final sortedProjects = List<ProjectModel>.from(_projects);
-    switch (_selectedSortOption) {
-      case SortOption.deadline:
-        sortedProjects.sort((a, b) => a.endDate.compareTo(b.endDate));
-        break;
-      case SortOption.projectStatus:
-        sortedProjects.sort((a, b) => a.status.compareTo(b.status));
-        break;
+  void changeSelectedProject(ProjectModel? project) {
+    if (project != null) {
+      _selectedProject = project;
+      _calculateStatsFromProjects();
+      update();
     }
-    _projects = sortedProjects;
   }
+
   int get activeProjectsCount {
     if (_stats.isEmpty) return 0;
-    return _stats['activeProjects'] ?? _stats['active'] ?? 0;
+    return _stats['activeProjects'] ??
+        _stats['active'] ??
+        _stats['activeProjectsCount'] ??
+        0;
   }
+
   int get totalTasksCount {
     if (_stats.isEmpty) return 0;
-    return _stats['totalTasks'] ?? _stats['tasks'] ?? 0;
+    return _stats['totalTasks'] ??
+        _stats['tasks'] ??
+        _stats['totalTasksCount'] ??
+        0;
   }
+
   int get teamMembersCount {
     if (_stats.isEmpty) return 0;
-    return _stats['teamMembers'] ?? _stats['members'] ?? 0;
+    return _stats['teamMembers'] ??
+        _stats['members'] ??
+        _stats['teamMembersCount'] ??
+        0;
   }
+
   double get completionRate {
     if (_stats.isEmpty) return 0.0;
-    final rate = _stats['completionRate'] ??
-                 _stats['completion'] ??
-                 _stats['progress'] ??
-                 0.0;
+    final rate =
+        _stats['completionRate'] ??
+        _stats['completion'] ??
+        _stats['progress'] ??
+        _stats['avgCompletionRate'] ??
+        0.0;
     if (rate is num) return rate.toDouble();
     return 0.0;
   }

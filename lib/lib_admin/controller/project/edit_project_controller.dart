@@ -48,7 +48,6 @@ class EditProjectControllerImp extends EditProjectController {
         project = projectInList;
         codeController.text = project!.code ?? '';
         safeDelayController.text = project!.safeDelay?.toString() ?? '7';
-        // Extract clientId from Map if it exists
         if (project!.clientId != null) {
           final clientIdValue = project!.clientId;
           if (clientIdValue is Map<String, dynamic>) {

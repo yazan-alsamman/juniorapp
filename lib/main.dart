@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:project_hub/lib_admin/core/constant/routes.dart';
 import 'package:project_hub/core/services/services.dart';
-import 'package:project_hub/core/services/logging_service.dart'; 
+import 'package:project_hub/core/services/logging_service.dart';
 import 'package:project_hub/lib_admin/routes.dart';
 import 'package:project_hub/lib_admin/controller/auth/login_controller.dart';
 import 'package:project_hub/lib_admin/controller/auth/onBoarding_controller.dart';
@@ -20,11 +20,9 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await initialServices();
 
-  // Initialize logging service
   final loggingService = LoggingService();
   await loggingService.initialize();
 
-  // Print log file path to console for debugging
   final logPath = await loggingService.getLogFilePath();
   print('═══════════════════════════════════════════════════════');
   print('LOG FILE PATH: $logPath');
@@ -32,10 +30,8 @@ void main() async {
 
   await loggingService.logInfo('APP', 'Application started');
 
-  // Initialize only essential controllers at app start
   Get.put(LoginControllerImpl(), permanent: true);
   Get.put(OnBoardingControllerImp(), permanent: true);
-  // Other controllers will be initialized after successful login based on role
 
   runApp(const MyApp());
 }
@@ -45,7 +41,6 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Initialize theme controller
     Get.put(ThemeController());
 
     return GetBuilder<ThemeController>(

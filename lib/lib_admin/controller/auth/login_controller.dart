@@ -160,9 +160,6 @@ class LoginControllerImpl extends LoginController {
         } else {
           await _logger.logInfo('NAV', 'Routing to admin app');
 
-          // Controllers will be initialized automatically via bindings when entering each page
-          // No need to initialize them here
-
           if (userRole?.toLowerCase() == 'developer') {
             Get.offAllNamed(AppRoute.tasks);
           } else {

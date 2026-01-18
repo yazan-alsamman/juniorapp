@@ -185,18 +185,6 @@ class _CustomDrawerState extends State<CustomDrawer> {
                   ),
                   if (!_isDev())
                     buildMenuItem(
-                      icon: Icons.analytics,
-                      title: 'Analytics',
-                      onTap: () {
-                        if (widget.onItemTap != null) {
-                          widget.onItemTap!('Analytics');
-                        }
-                        Get.back();
-                        Get.offAllNamed(AppRoute.analytics);
-                      },
-                    ),
-                  if (!_isDev())
-                    buildMenuItem(
                       icon: Icons.dashboard,
                       title: 'Project Dashboard',
                       onTap: () {
